@@ -16,6 +16,8 @@ In this memo, the terms defined in [NIST SP 800-63C] are used.
 
 [SAMLv2HoKA] [SAML V2.0 Holder-of-Key Assertion Profile Version 1.0 Committee Specification 02](http://docs.oasis-open.org/security/saml/Post2.0/sstc-saml2-holder-of-key-cs-02.pdf)
 
+[SAMLv2HoKSSO] [SAML V2.0 Holder-of-Key Web Browser SSO Profile Version 1.0 Committee Specification 02](http://docs.oasis-open.org/security/saml/Post2.0/sstc-saml-holder-of-key-browser-sso-cs-02.pdf)
+
 [PKCE] [RFC 7636 Proof Key for Code Exchange by OAuth Public Clients](https://tools.ietf.org/html/rfc7636)
 
 [OWASP] [Session Management Cheat Sheet](https://www.owasp.org/index.php/Session_Management_Cheat_Sheet)
@@ -112,7 +114,7 @@ Besides assertion reference, if an attacker intercept a victim's login session i
 
 In order to prevent this impersonation, several methods are developed.
 1. Token Binding using TLS layer's exported keying material derived from its master secret mentioned in [TokenBind]
-2. Holder of Key Assertion mentioned in [SAMLv2HoKA]
+2. Holder of Key Assertion mentioned in [SAMLv2HoKA] [SAMLv2HoKSSO]
 3. Proof Key for Code Exchange mentioned in [PKCE]
 4. Session ID in Cookie, header parameter mentioned in [OWASP]
 
@@ -120,7 +122,7 @@ Apart from 1, if the attacker intercepts messages between the victim's browser a
 
 As for 1, it is preferable but I couldn't find any implementation that might be used.
 
-As for 2, it might be difficult to use and manage client side X.509 certificates.
+As for 2, it might be difficult to use and manage client side X.509 certificates even if these need not trusted certificates. Moreover, it seems not to specify how to prove possesion of the private key corresponding to the public key bound to the certificates in detail.
 
 As for 3, it might be difficult to make the browser conduct this protocol without modifying the browser itself (might be possible if using JavaScript sent from keycloak).
 
