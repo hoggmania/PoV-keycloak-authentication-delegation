@@ -1,0 +1,3 @@
+org.keycloak.examples.userstorage.readonly.PropertyFileUserStorageProviderFactory
+org.keycloak.examples.userstorage.writeable.PropertyFileUserStorageProviderFactory
+org.keycloak.examples.userstorage.readonly.DelegatedUserStorageProviderFactory

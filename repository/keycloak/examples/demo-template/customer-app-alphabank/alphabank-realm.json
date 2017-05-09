@@ -1,0 +1,246 @@
+{
+    "realm": "alphabank",
+    "enabled": true,
+    "accessTokenLifespan": 60,
+    "accessCodeLifespan": 60,
+    "accessCodeLifespanUserAction": 300,
+    "ssoSessionIdleTimeout": 600,
+    "ssoSessionMaxLifespan": 36000,
+    "sslRequired": "external",
+    "registrationAllowed": false,
+    "requiredCredentials": [ "password" ],
+    "roles" : {
+        "realm" : [
+            {
+                "name": "user",
+                "description": "User privileges"
+            },
+            {
+                "name": "admin",
+                "description": "Administrator privileges"
+            }
+        ]
+    },
+    "clients": [
+        {
+            "clientId": "customer-portal-alphabank",
+            "enabled": true,
+            "rootUrl" : "http://localhost:8380",
+            "adminUrl": "/customer-portal-alphabank",
+            "baseUrl": "/customer-portal-alphabank",
+            "redirectUris": [
+                "/customer-portal-alphabank/*"
+            ],
+            "secret": "75a898fa-47d6-408e-9caf-db9fb64e68d4",
+            "protocolMappers": [
+                {
+                    "id": "e93286b4-df84-4e7e-8cd7-684d43e04e44",
+                    "name": "scopes",
+                    "protocol": "openid-connect",
+                    "protocolMapper": "oidc-usermodel-realm-role-mapper",
+                    "consentRequired": false,
+                    "config": {
+                        "access.token.claim": "true",
+                        "claim.name": "scopes",
+                        "jsonType.label": "String"
+                    }
+                },
+                {
+                    "id": "c92ce93b-2c9f-4246-8cfb-430a44d6acd3",
+                    "name": "firstName",
+                    "protocol": "openid-connect",
+                    "protocolMapper": "oidc-usermodel-attribute-mapper",
+                    "consentRequired": false,
+                    "config": {
+                        "userinfo.token.claim": "true",
+                        "user.attribute": "firstName",
+                        "id.token.claim": "true",
+                        "access.token.claim": "true",
+                        "claim.name": "firstName",
+                        "jsonType.label": "String"
+                    }
+                },
+                {
+                    "id": "5d85a02d-352b-4500-8360-4316c1077b19",
+                    "name": "full name",
+                    "protocol": "openid-connect",
+                    "protocolMapper": "oidc-full-name-mapper",
+                    "consentRequired": true,
+                    "consentText": "${fullName}",
+                    "config": {
+                        "id.token.claim": "true",
+                        "access.token.claim": "true"
+                    }
+                },
+                {
+                    "id": "c63ee5d5-9e62-4edd-9792-5b7e556298a6",
+                    "name": "lastName",
+                    "protocol": "openid-connect",
+                    "protocolMapper": "oidc-usermodel-attribute-mapper",
+                    "consentRequired": false,
+                    "config": {
+                        "userinfo.token.claim": "true",
+                        "user.attribute": "lastName",
+                        "id.token.claim": "true",
+                        "access.token.claim": "true",
+                        "claim.name": "lastName",
+                        "jsonType.label": "String"
+                    }
+                },
+                {
+                    "id": "88764e3e-b643-4556-806c-90aa64a45ac2",
+                    "name": "given name",
+                    "protocol": "openid-connect",
+                    "protocolMapper": "oidc-usermodel-property-mapper",
+                    "consentRequired": true,
+                    "consentText": "${givenName}",
+                    "config": {
+                        "userinfo.token.claim": "true",
+                        "user.attribute": "firstName",
+                        "id.token.claim": "true",
+                        "access.token.claim": "true",
+                        "claim.name": "given_name",
+                        "jsonType.label": "String"
+                    }
+                },
+                {
+                    "id": "41a54482-7c0c-4750-8cb5-b518a78c6d8a",
+                    "name": "attributeEmail",
+                    "protocol": "openid-connect",
+                    "protocolMapper": "oidc-usermodel-attribute-mapper",
+                    "consentRequired": false,
+                    "config": {
+                        "userinfo.token.claim": "true",
+                        "user.attribute": "attributeEmail",
+                        "id.token.claim": "true",
+                        "access.token.claim": "true",
+                        "claim.name": "attributeEmail",
+                        "jsonType.label": "String"
+                    }
+                },
+                {
+                    "id": "c095b9d3-2159-4e3e-94e5-99a046e7d25d",
+                    "name": "role list",
+                    "protocol": "saml",
+                    "protocolMapper": "saml-role-list-mapper",
+                    "consentRequired": false,
+                    "config": {
+                        "single": "false",
+                        "attribute.nameformat": "Basic",
+                        "attribute.name": "Role"
+                    }
+                },
+                {
+                    "id": "18d1990a-e8d9-442c-95bb-79be55676422",
+                    "name": "attributeRoles",
+                    "protocol": "openid-connect",
+                    "protocolMapper": "oidc-usermodel-attribute-mapper",
+                    "consentRequired": false,
+                    "config": {
+                        "multivalued": "true",
+                        "userinfo.token.claim": "true",
+                        "user.attribute": "attributeRoles",
+                        "id.token.claim": "true",
+                        "access.token.claim": "true",
+                        "claim.name": "attributeRoles",
+                        "jsonType.label": "String"
+                    }
+                },
+                {
+                    "id": "acbfd093-7d90-4ca9-8e4f-9a7ed810acbb",
+                    "name": "age",
+                    "protocol": "openid-connect",
+                    "protocolMapper": "oidc-usermodel-attribute-mapper",
+                    "consentRequired": false,
+                    "config": {
+                        "userinfo.token.claim": "true",
+                        "user.attribute": "age",
+                        "id.token.claim": "true",
+                        "access.token.claim": "true",
+                        "claim.name": "age",
+                        "jsonType.label": "String"
+                    }
+                },
+                {
+                    "id": "74d7ca26-96fd-493e-aa20-5b50c115324f",
+                    "name": "customerRank",
+                    "protocol": "openid-connect",
+                    "protocolMapper": "oidc-usermodel-attribute-mapper",
+                    "consentRequired": false,
+                    "config": {
+                        "userinfo.token.claim": "true",
+                        "user.attribute": "customerRank",
+                        "id.token.claim": "true",
+                        "access.token.claim": "true",
+                        "claim.name": "customerRank",
+                        "jsonType.label": "String"
+                    }
+                },
+                {
+                    "id": "2205c9b0-7c8f-463a-bd15-61902c503129",
+                    "name": "username",
+                    "protocol": "openid-connect",
+                    "protocolMapper": "oidc-usermodel-property-mapper",
+                    "consentRequired": true,
+                    "consentText": "${username}",
+                    "config": {
+                        "userinfo.token.claim": "true",
+                        "user.attribute": "username",
+                        "id.token.claim": "true",
+                        "access.token.claim": "true",
+                        "claim.name": "preferred_username",
+                        "jsonType.label": "String"
+                    }
+                },
+                {
+                    "id": "540a4375-535e-4532-9f1a-d46159b83728",
+                    "name": "sex",
+                    "protocol": "openid-connect",
+                    "protocolMapper": "oidc-usermodel-attribute-mapper",
+                    "consentRequired": false,
+                    "config": {
+                        "multivalued": "false",
+                        "userinfo.token.claim": "true",
+                        "user.attribute": "sex",
+                        "id.token.claim": "true",
+                        "access.token.claim": "true",
+                        "claim.name": "sex",
+                        "jsonType.label": "String"
+                    }
+                },
+                {
+                    "id": "c33c7106-cc62-4bcc-ab89-02dcee88f18d",
+                    "name": "email",
+                    "protocol": "openid-connect",
+                    "protocolMapper": "oidc-usermodel-property-mapper",
+                    "consentRequired": true,
+                    "consentText": "${email}",
+                    "config": {
+                        "userinfo.token.claim": "true",
+                        "user.attribute": "email",
+                        "id.token.claim": "true",
+                        "access.token.claim": "true",
+                        "claim.name": "email",
+                        "jsonType.label": "String"
+                    }
+                },
+                {
+                    "id": "ee102d00-88e9-4871-92ad-6e0e6f7ee58b",
+                    "name": "family name",
+                    "protocol": "openid-connect",
+                    "protocolMapper": "oidc-usermodel-property-mapper",
+                    "consentRequired": true,
+                    "consentText": "${familyName}",
+                    "config": {
+                        "userinfo.token.claim": "true",
+                        "user.attribute": "lastName",
+                        "id.token.claim": "true",
+                        "access.token.claim": "true",
+                        "claim.name": "family_name",
+                        "jsonType.label": "String"
+                    }
+                }
+            ]
+        }
+    ]
+}
