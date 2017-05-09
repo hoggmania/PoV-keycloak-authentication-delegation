@@ -1,0 +1,35 @@
+Subject: Proposal of using existing authentication server on behalf of keycloak browser-based authentication
+
+Hello.
+
+I'd like to propose the feature of delegating authentication to an external authentication server on behalf of keycloak's browser-based authentication mechanism. 
+
+It might be said that it be the variant of Identity Brokering except for not using standard protocols for Identity Federation such as OpenID Connect and SAMLv2.
+
+Its concept is similar to SP-Initiated SSO: POST/Artifact Bindings of SAMLv2.
+
+[Background]
+- The authentication server has already existed.
+- This authentication server has not implemented OpenID Connect protocol.
+- You want to use keycloak for realizing secure identity and access management by OpenID Connect.
+
+In this situation above, you could opt to port the authentication feature of the existing authentication server onto keycloak and use User Storage SPI provider for retrieving user information from the existing authentication server, or implementing OpenID Connect protocol to address Identity Brokering triggered by keycloak.
+
+However, the followings make it hard or impossible. 
+
+- UI implementation cost : Responsive design, vast amount of customization based on various factors.
+- Authentication porting cost : Requirements for high-level authentication that have already been implemented in the existing authentication server such as multi-factor authentication for LoA 3 conformance in ITU-T X.1254.
+
+This authentication delegation mechanism resolves these difficulties by using the existing authentication server for authentication and retrieving authenticated user information by back-end communication between keycloak and the existing authentication server.
+
+Prototype Implementation and PoV testing has been completed.
+
+Implementing as additional providers and its factories for Authentication SPI and User Storage SPI in order to avoid impairing existing keycloak features.
+
+Would you mind reviewing this concept and prototype implementation? If accepted, I'm willing to revise codes for PR.
+Details is as follows.
+<github - hitachi accounts's repository>
+
+Best Regards
+Takashi Norimatsu
+Hitachi, Ltd.
