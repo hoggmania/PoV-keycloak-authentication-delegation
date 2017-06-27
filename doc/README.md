@@ -23,7 +23,7 @@ In this memo, the terms defined in [NIST SP 800-63C] are used.
 [OWASP] [Session Management Cheat Sheet](https://www.owasp.org/index.php/Session_Management_Cheat_Sheet)
 
 ## 1.2. About Authentication Delegation
-Authentication Delegation stands for delegating authentication to an external authentication server on behalf of keycloak's browser-based authentication mechanism. It might be said that it be the variant of Identity Brokering mentioned in section 3.13 of [keycloak] except for not using standard protocols for Identity Federation such as OpenID Connect and SAMLv2. Its concept is similar to 5.1.3 SP-Initiated SSO: POST/Artifact Bindings of [SAMLv2].
+In this context, Authentication Delegation stands for delegating authentication to an external authentication server on behalf of keycloak's browser-based authentication mechanism. It might be said that it be the variant of Identity Brokering mentioned in section 3.13 of [keycloak] except for not using standard protocols for Identity Federation such as OpenID Connect and SAMLv2. Its concept is similar to 5.1.3 SP-Initiated SSO: POST/Artifact Bindings of [SAMLv2].
 
 ## 1.3. Current Status
 Prototype Implementation and PoV testing has been completed.
@@ -75,7 +75,7 @@ I've consider them based on 6.1. Back-channel Presentation and 8. Security of [N
 In general, there seemed to be nothing special because assertions are transmitted in Back Channel in the private network.
 
 ### 4.2.1.1. Assertion Manufacture/Modification
-+ Both keycloak's and the external authentication server's endpoints in Back Channel MUST be within the **same private** network so that no entity outside this network can access them, and mutually authenticated TLS connections SHOULD be used if necessary.
++ Both keycloak's and the external authentication server's endpoints in Back Channel MUST be within the **same private** network so that no entity outside this network can access them, and mutually authenticated TLS connections SHOULD be used if necessary. As a quick remedy, I've add the switch for activating SSL Required for Back End Connmunication.
 
 ### 4.2.1.2. Assertion Disclosure
 same as 4.2.1.1.
@@ -99,8 +99,8 @@ same as 4.2.1.4.
 In general, there seemed to take extra precaution because assertion references are transmitted in Front Channel via user's browser in the Internet.
 
 ### 4.2.3.1. Assertion Reference Manufacture/Modification
-+ Both keycloak's and the external authentication server's endpoints in Front Channel MUST NOT accept HTTP connection but MUST only accept HTTPS connections.
-+ Assertion reference MUST NOT contain any information about an authenticated user and MUST be created with at least 256 bits of entropy
++ Both keycloak's and the external authentication server's endpoints in Front Channel MUST NOT accept HTTP connection but MUST only accept HTTPS connections. It might be treated by keycloak's realm settings ("Login" -> "Require SSL" -> all requests ).
++ Assertion reference MUST NOT contain any information about an authenticated user and MUST be created with at least 256 bits of entropy. As a quick remedy, I've add a skeleton for its verificaton in the providers.  
 
 ### 4.2.3.2. Assertion Reference Disclosure
 + same as the first item mentioned in 4.2.3.1.
@@ -131,6 +131,7 @@ Therefore, I chose 4 and use HTTP FORM POST with assertion reference enclosed in
 In keycloak, code issued from login endpoint in Front Channel would be used as session id, but I did not use it as Session ID because keycloak's default login endpoint only accept code (and execution) in the form of query parameters, which might not be secure because query parameters are disclosed in the browser, the http/proxy server's log and so on.
 
 ### 4.2.3.5. Assertion Reference Reuse
+Those below are about CSP matters so that keycloak cannot deals with them.
 + Assertion reference MUST be available in a short time such as 30 seconds (might be enough long to complete assertion resolution because of what mentioned in 4.2.1.1. and 4.2.1.4.).
 + Assertion reference MUST be used once and for all.
 
@@ -138,28 +139,40 @@ In keycloak, code issued from login endpoint in Front Channel would be used as s
 same as 4.2.1.4.
 
 ## 4.3. Role (Scope) Mapping
-As proposal, determine roles(scopes) assigned to users as Cartesian product of the following sets.
+As proposal, determine roles(scopes) assigned to users as an intersection of the following sets.
 + Values sent from the external authentication server
 + Values assigned users as "Default Roles"
 + Values specified in "scope" OAuth2/OIDC protocol parameter
 
-Currently, not yet implemented.
-
-I'm not sure how to deal with client role and realm role differently.
+Currently, not yet implemented. As a quick remedy, I've added original field "scopes" in the Access Token whose values are returned from CSP in the back channel communication.
 
 ## 4.4. Supporting Multiple External Authentication Server
 Not support multiple external authentication servers.
 
 ## 4.5. How to Incorporate Who Authenticated Subject in ID Token
-TBD
+I've referred some standards and keycloak's identity brokering implementation, but I could find no such standard claim. Therefore I've add non-standard original claims below.
++ "delegated_authenticator" : CSP's identifier (as the same format of iss)
++ "delegated_acr" : Authentication Context Class Reference regarding authentication conducted by CSP (as the same format of acr)
++ "delegated_amr" : Authentication Methods References regarding authentication conducted by CSP (as the same format of amr)
 
-(add non-standard claim, or standard claim exists? I'll consult keycloak's identity brokering implementation and follow them.)
-
-## 4.6. Cache Policy
-TBD
+## 4.6. Cache Policy in User Storage Provider
+About 1 day seemed to be appropriate because add/remove/modify user or user's attributes in CSP might not be so often executed.
 
 ## 4.7. Error Handling
-TBD
 
+### 4.7.1. Authentication Provider
+Through the this delegated authentication login flow of keycloak, there are 54 points where some exception or error is raised.
 
+Basically, those are treated the same as the original browser flow except Login Timeout.
 
+On Login Timeout, the original browser flow terminate the current login sequense and restart the new sequence  updating free marker templated login page without user's intervention.
+
+In this authentication delegated manner, both keycloak and CSP has each login timeout timer and such the case occurs that a user is successfully authenticated by CSP before CSP's login timeout timer expires but keycloak's login timeout timer expires, leading to terminating the current login sequence in keycloak and renew it.  
+
+To get around this situation, keycloak terminate the current login sequense but not renew it.
+
+I do not yet consider how CSP behaves on this situation (keycloak tells this event in backchannel communication, etc...).
+
+### 4.7.2. User Storage Provider
+
+Basically, when some error occurs, log this error and return null the same that other user storage providers do.
