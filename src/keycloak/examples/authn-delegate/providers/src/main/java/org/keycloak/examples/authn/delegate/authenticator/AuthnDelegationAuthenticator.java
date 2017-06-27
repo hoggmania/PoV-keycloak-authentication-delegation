@@ -163,15 +163,25 @@ public class AuthnDelegationAuthenticator implements Authenticator  {
         checkSslForBackEndCommunication(Boolean.valueOf(config.getConfig().get(AuthnDelegationAuthenticatorFactory.IS_BACKEND_COMM_SSL_REQUIRED)), baseUri);
 
         String artifactValue = null;
-        MultivaluedMap<String, String> formParameters = httpRequest.getFormParameters();
-        if (formParameters.containsKey("artifact")) artifactValue = formParameters.getFirst("artifact");
+        MultivaluedMap<String, String> formData = httpRequest.getDecodedFormParameters();
+        if (formData.containsKey("cancel")) {
+        	log.debug("user cancel authentication in authn server.");
+            context.cancelLogin();
+            return;
+        }
+        if (formData.containsKey("artifact")) {
+        	artifactValue = formData.getFirst("artifact");
+        } else {
+        	log.warn("authn server send no artifact.");
+            context.cancelLogin();
+            return;
+        }
         if (!verifyArtifact(artifactValue)) {
             handleAuthenticationFlowException(AuthenticationFlowError.INTERNAL_ERROR, "invalid artifact received from the external authentication server.");
         }
         
         String postText = "artifact=" + artifactValue;
         log.debug("postText = " + postText);
-        System.out.println(postText);
         
         // get authenticated user ID from external authentication server
         // Conventionally, use the term "username" for user ID which both keycloak and external authentication server use to refer unique user in this context.
@@ -199,7 +209,6 @@ public class AuthnDelegationAuthenticator implements Authenticator  {
             handleAuthenticationFlowException(AuthenticationFlowError.INTERNAL_ERROR, "failed to get userinfo from the external authentication server in backchannel communitacions");
         }
         log.debug("usermodel username=" + user.getUsername());
-        System.out.println("usermodel username=" + user.getUsername());
         context.setUser(user);
         context.success();
     }
@@ -235,7 +244,6 @@ public class AuthnDelegationAuthenticator implements Authenticator  {
         for (String propertyName : propsHeaders.stringPropertyNames()) {
             String propertyValue = propsHeaders.getProperty(propertyName);
             log.debug(propertyName + " = " + propertyValue);
-            System.out.println(propertyName + " = " + propertyValue);
             if (headerFields.containsKey(propertyName)) {
                 builder.append("&" + propertyValue + "=" + Base64Url.encode(headerFields.getFirst(propertyName).getBytes()));
                 log.debug("forwarding header " + propertyValue + " = " + headerFields.getFirst(propertyName) + " base64url enc -> " + Base64Url.encode(headerFields.getFirst(propertyName).getBytes()));
@@ -280,10 +288,8 @@ public class AuthnDelegationAuthenticator implements Authenticator  {
         for (String propertyName : propsHeaders.stringPropertyNames()) {
             String propertyValue = propsHeaders.getProperty(propertyName);
             log.debug(propertyName + " = " + propertyValue);
-            System.out.println(propertyName + " = " + propertyValue);
             if (headerFields.containsKey(propertyName)) {
                 log.debug("forwarding header " + propertyValue + " = " + headerFields.getFirst(propertyName));
-                System.out.println("forwarding header " + propertyValue + " = " + headerFields.getFirst(propertyName));
                 builder.append("<INPUT name=\"" + propertyValue + "\" TYPE=\"HIDDEN\" VALUE=\"" + headerFields.getFirst(propertyName) + "\" />");
             }
         }
@@ -292,10 +298,8 @@ public class AuthnDelegationAuthenticator implements Authenticator  {
         for (String propertyName : propsQueryParams.stringPropertyNames()) {
             String propertyValue = propsQueryParams.getProperty(propertyName);
             log.debug(propertyName + " = " + propertyValue);
-            System.out.println(propertyName + " = " + propertyValue);
             if (queryParameters.containsKey(propertyName)) {
                 log.debug("forwarding parameter " + propertyValue + " = " + queryParameters.getFirst(propertyName));
-                System.out.println("forwarding parameter " + propertyValue + " = " + queryParameters.getFirst(propertyName));
                 builder.append("<INPUT name=\"" + propertyValue + "\" TYPE=\"HIDDEN\" VALUE=\"" + queryParameters.getFirst(propertyName) + "\" />");
             }
         }
